@@ -16,15 +16,17 @@ type leftRight struct {
 
 func main() {
 	fmt.Println("AoC Day 1")
-
 	asString := fileToString()
-	// fmt.Println(asString)
 
+	fmt.Println("Test case")
 	testIn := "3   4\r\n4   3\r\n2   5\r\n1   3\r\n3   9\r\n3   3"
 	sortedListsTest := splitAndSort(testIn)
 	calculateTotalDists(*sortedListsTest)
 	calculateSimilarity(*sortedListsTest)
 
+	fmt.Println("")
+
+	fmt.Println("Real case")
 	sortedLists := splitAndSort(asString)
 	calculateTotalDists(*sortedLists)
 	calculateSimilarity(*sortedLists)
@@ -75,7 +77,6 @@ func calculateTotalDists(input leftRight) {
 		if diff < 0 {
 			diff = -diff
 		}
-
 		total += diff
 	}
 
@@ -92,7 +93,6 @@ func calculateSimilarity(input leftRight) {
 			}
 		}
 		if matches > 0 {
-			// fmt.Println("Val ", valLeft, "Matches ", matches, "Sim ", valLeft*matches)
 			total += valLeft * matches
 		}
 	}
