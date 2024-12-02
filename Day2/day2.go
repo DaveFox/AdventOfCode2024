@@ -21,6 +21,16 @@ func main() {
 	for _, line := range lines {
 		if isLineIncOrDec(line) && diffCheck(line) {
 			safeCount++
+		} else {
+			asNum := stringLineToNum(line)
+			for index, _ := range asNum {
+				subLine := removeIndex(asNum, index)
+				// fmt.Println("sub", subLine)
+				if isLineIncOrDec2(subLine) && diffCheck2(subLine) {
+					safeCount++
+					break
+				}
+			}
 		}
 	}
 
@@ -38,20 +48,27 @@ func fileToString() string {
 	return builder.String()
 }
 
-func isLineIncOrDec(line string) bool {
-	increasing := true
-	decreasing := true
-	allLine := strings.Fields(line)
-
-	currI, err := strconv.Atoi(allLine[0])
-	if err != nil {
-		panic(err)
-	}
-	for i := 1; i < len(allLine); i++ {
-		comp, err := strconv.Atoi(allLine[i])
+func stringLineToNum(stringLine string) []int {
+	fields := strings.Fields(stringLine)
+	var nums []int
+	for _, val := range fields {
+		num, err := strconv.Atoi(val)
 		if err != nil {
 			panic(err)
 		}
+		nums = append(nums, num)
+	}
+	return nums
+}
+
+func isLineIncOrDec(line string) bool {
+	increasing := true
+	decreasing := true
+	allLine := stringLineToNum(line)
+
+	currI := allLine[0]
+	for i := 1; i < len(allLine); i++ {
+		comp := allLine[i]
 		if comp < currI {
 			increasing = false
 			break
@@ -59,15 +76,36 @@ func isLineIncOrDec(line string) bool {
 		currI = comp
 	}
 
-	currD, err := strconv.Atoi(allLine[0])
-	if err != nil {
-		panic(err)
-	}
+	currD := allLine[0]
 	for j := 1; j < len(allLine); j++ {
-		comp, err := strconv.Atoi(allLine[j])
-		if err != nil {
-			panic(err)
+		comp := allLine[j]
+		if comp > currD {
+			decreasing = false
+			break
 		}
+		currD = comp
+	}
+
+	return increasing || decreasing
+}
+
+func isLineIncOrDec2(line []int) bool {
+	increasing := true
+	decreasing := true
+
+	currI := line[0]
+	for i := 1; i < len(line); i++ {
+		comp := line[i]
+		if comp < currI {
+			increasing = false
+			break
+		}
+		currI = comp
+	}
+
+	currD := line[0]
+	for j := 1; j < len(line); j++ {
+		comp := line[j]
 		if comp > currD {
 			decreasing = false
 			break
@@ -80,18 +118,11 @@ func isLineIncOrDec(line string) bool {
 
 func diffCheck(line string) bool {
 	levelsOk := true
-	levels := strings.Fields(line)
-	start, err := strconv.Atoi(levels[0])
-	if err != nil {
-		panic(err)
-	}
+	levels := stringLineToNum(line)
+	start := levels[0]
 
 	for i := 1; i < len(levels); i++ {
-		num, err := strconv.Atoi(levels[i])
-		if err != nil {
-			panic(err)
-		}
-
+		num := levels[i]
 		diff := start - num
 		if diff < 0 {
 			diff = -diff
@@ -103,4 +134,41 @@ func diffCheck(line string) bool {
 	}
 
 	return levelsOk
+}
+
+func diffCheck2(line []int) bool {
+	levelsOk := true
+	start := line[0]
+
+	for i := 1; i < len(line); i++ {
+		num := line[i]
+		diff := start - num
+		if diff < 0 {
+			diff = -diff
+		}
+		if diff == 0 || diff > 3 {
+			levelsOk = false
+		}
+		start = num
+	}
+
+	return levelsOk
+}
+
+func remove(slice []string, index int) []string {
+	newArr := make([]string, len(slice)-1)
+	j := 0
+	for i := 0; i < len(slice)-1; i++ {
+		if i != index {
+			newArr[i] = slice[j]
+		}
+		j++
+	}
+	return newArr
+}
+
+func removeIndex(s []int, index int) []int {
+	ret := make([]int, 0)
+	ret = append(ret, s[:index]...)
+	return append(ret, s[index+1:]...)
 }
