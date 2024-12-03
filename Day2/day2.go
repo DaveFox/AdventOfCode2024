@@ -155,18 +155,6 @@ func diffCheck2(line []int) bool {
 	return levelsOk
 }
 
-func remove(slice []string, index int) []string {
-	newArr := make([]string, len(slice)-1)
-	j := 0
-	for i := 0; i < len(slice)-1; i++ {
-		if i != index {
-			newArr[i] = slice[j]
-		}
-		j++
-	}
-	return newArr
-}
-
 func removeIndex(s []int, index int) []int {
 	ret := make([]int, 0)
 	ret = append(ret, s[:index]...)
