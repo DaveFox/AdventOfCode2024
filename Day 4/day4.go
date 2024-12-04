@@ -35,6 +35,48 @@ func main() {
 	//part 2
 
 	// splt to 3x3's
+	var subgrids []string
+	for i := 0; i < len(rows)-2; i++ {
+		for j := 0; j < len(rows[i])-2; j++ {
+			block := ""
+			for k := 0; k < 3; k++ {
+				block += string(rows[i][j+k])
+			}
+			block += "\n"
+			for k := 0; k < 3; k++ {
+				block += string(rows[i+1][j+k])
+			}
+			block += "\n"
+			for k := 0; k < 3; k++ {
+				block += string(rows[i+2][j+k])
+			}
+			block += "\n"
+			subgrids = append(subgrids, block)
+		}
+	}
+	fmt.Println(len(subgrids), "subgrids")
+
+	//   01234567
+	// 0 MMMSXXMASM
+	// 1 MSAMXMSMSA
+	// 2 AMXSXMAAMM
+	// 3 MSAMASMSMX
+	// 4 XMASAMXAMM
+	// 5 XXAMMXXAMA
+	// 6 SMSMSASXSS
+	// 7 SAXAMASAAA
+	//   MAMMMXMMMM
+	//   MXMXAXMASX
+	// So should be 64 subgrids of 3x3
+
+	// checkSubGrid(subgrids[13])
+	totalXs := 0
+	for _, subgrid := range subgrids {
+		if checkSubGrid(subgrid) {
+			totalXs++
+		}
+	}
+	fmt.Println(totalXs)
 }
 
 func fileToString() string {
@@ -145,4 +187,45 @@ func checkDiags(rows []string) int {
 	}
 	fmt.Println("Diags:", diagFwdAndBck)
 	return diagFwdAndBck
+}
+
+func checkSubGrid(grid string) bool {
+	// fmt.Println(grid)
+	if string(grid[0]) == "M" && string(grid[2]) == "S" {
+		if string(grid[5]) == "A" {
+			if string(grid[8]) == "M" && string(grid[10]) == "S" {
+				// fmt.Println("Is forward x-mas")
+				// fmt.Println(grid)
+				return true
+			}
+		}
+	}
+	if string(grid[0]) == "M" && string(grid[2]) == "M" {
+		if string(grid[5]) == "A" {
+			if string(grid[8]) == "S" && string(grid[10]) == "S" {
+				// fmt.Println("Is forward x-mas type 2")
+				// fmt.Println(grid)
+				return true
+			}
+		}
+	}
+	if string(grid[0]) == "S" && string(grid[2]) == "M" {
+		if string(grid[5]) == "A" {
+			if string(grid[8]) == "S" && string(grid[10]) == "M" {
+				// fmt.Println("Is backwards x-mas")
+				// fmt.Println(grid)
+				return true
+			}
+		}
+	}
+	if string(grid[0]) == "S" && string(grid[2]) == "S" {
+		if string(grid[5]) == "A" {
+			if string(grid[8]) == "M" && string(grid[10]) == "M" {
+				// fmt.Println("Is backwards x-mas type 2")
+				// fmt.Println(grid)
+				return true
+			}
+		}
+	}
+	return false
 }
