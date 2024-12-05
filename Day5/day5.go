@@ -12,7 +12,7 @@ func main() {
 	fmt.Println("AoC Day 5")
 	inputString := fileToString()
 
-	// 	testIn := `47|53
+	// testIn := `47|53
 	// 97|13
 	// 97|61
 	// 97|47
@@ -45,12 +45,9 @@ func main() {
 	rules := strings.Fields(strings.Split(inputString, "\r\nSPLIT\r\n")[0])
 	updates := strings.Fields(strings.Split(inputString, "\r\nSPLIT\r\n")[1]) // Real vs test \r\n vs \n
 
-	//fmt.Println(updates[0])
-	//applyRule(updates[0], rules[0])
-
 	passingUpdates := ""
+	failingUpdates := ""
 	for _, update := range updates {
-		//fmt.Println("\n", update)
 		pass := true
 		for _, rule := range rules {
 			pass = applyRule(update, rule)
@@ -58,30 +55,41 @@ func main() {
 				break
 			}
 		}
-		//fmt.Println(pass)
 		if pass {
 			passingUpdates += update + "  "
+		} else {
+			failingUpdates += update + "  "
 		}
 	}
-	// fmt.Println("")
 	// fmt.Println("Passing updates:", passingUpdates)
-
-	// for update of passingUpdate add middle vals
-	toAdd := strings.Fields(passingUpdates)
-	total := 0
-	for _, update := range toAdd {
-		values := strings.Split(update, ",")
-		mid := values[len(values)/2]
-		midNum, err := strconv.Atoi(mid)
-		if err != nil {
-			panic(err)
-		}
-		total += midNum
-	}
-	fmt.Println(total)
+	calcuateTotalOfMids(passingUpdates)
 
 	// part 2
+	// fmt.Println("Failing updates:", failingUpdates)
+	failingList := strings.Fields(failingUpdates)
+	nowPassing := ""
+	for _, failure := range failingList {
+		for i := 0; i < 20; i++ { // run multiple times. Really should run until no rule is broken but...
+			for _, rule := range rules {
+				failure = applyRuleAndFix(failure, rule)
+			}
+		}
+		nowPassing += failure + "  "
+	}
 
+	// fmt.Println(nowPassing)
+	calcuateTotalOfMids(nowPassing)
+}
+
+func fileToString() string {
+	file, err := os.Open("./input.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	builder := new(strings.Builder)
+	io.Copy(builder, file)
+	return builder.String()
 }
 
 func applyRule(update string, rulePair string) bool {
@@ -95,13 +103,30 @@ func applyRule(update string, rulePair string) bool {
 	return true
 }
 
-func fileToString() string {
-	file, err := os.Open("./input.txt")
-	if err != nil {
-		panic(err)
+func calcuateTotalOfMids(passingUpdates string) {
+	toAdd := strings.Fields(passingUpdates)
+	total := 0
+	for _, update := range toAdd {
+		values := strings.Split(update, ",")
+		mid := values[len(values)/2]
+		midNum, err := strconv.Atoi(mid)
+		if err != nil {
+			panic(err)
+		}
+		total += midNum
 	}
+	fmt.Println("Mid totals:", total)
+}
 
-	builder := new(strings.Builder)
-	io.Copy(builder, file)
-	return builder.String()
+func applyRuleAndFix(update string, rulePair string) string {
+	rulePages := strings.Split(rulePair, "|")
+	if strings.Contains(update, rulePages[0]) && strings.Contains(update, rulePages[1]) {
+		// fmt.Println("apply rule", rulePair)
+		if strings.Index(update, rulePages[0]) > strings.Index(update, rulePages[1]) {
+			// fmt.Println("apply fix", rulePair)
+			swapper := strings.NewReplacer(rulePages[0], rulePages[1], rulePages[1], rulePages[0])
+			return swapper.Replace(update)
+		}
+	}
+	return update
 }
