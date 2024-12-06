@@ -9,31 +9,30 @@ import (
 
 func main() {
 	fmt.Println("AoC Day 6")
-	// inputString := fileToString()
+	inputString := fileToString()
 
-	testInput := `....#.....
-	.........#
-	..........
-	..#.......
-	.......#..
-	..........
-	.#..^.....
-	........#.
-	#.........
-	......#...`
+	// testInput := `....#.....
+	// .........#
+	// ..........
+	// ..#.......
+	// .......#..
+	// ..........
+	// .#..^.....
+	// ........#.
+	// #.........
+	// ......#...`
 
 	// part 1
-	lines := strings.Fields(testInput)
+	lines := strings.Fields(inputString)
 
 	grid := buildGrid(lines)
-	printGrid(grid)
+	// printGrid(grid)
 
 	start := getStartPos(grid)
 	fmt.Println("Start pos:", start)
 
-	pathGrid(grid, start)
-
-	printGrid(grid)
+	pathGrid(grid, start, 0)
+	// printGrid(grid)
 
 	stepCount := 0
 	for _, row := range grid {
@@ -47,17 +46,27 @@ func main() {
 	fmt.Println(" ")
 
 	// part 2
-	linesPart2 := strings.Fields(testInput)
+	linesPart2 := strings.Fields(inputString)
 	newGrid := buildGrid(linesPart2)
-	printGrid(newGrid)
+	// printGrid(newGrid)
 	start2 := getStartPos(newGrid)
 	fmt.Println("Start pos (still):", start2)
 
-	// add obstacle
-	newGrid[7][6] = "#"
-	pathGrid(newGrid, start2)
+	infCount := 0
+	for i := 0; i < len(linesPart2); i++ {
+		for j := 0; j < len(linesPart2[i]); j++ {
+			newGrid = buildGrid(linesPart2)
+			start2 = getStartPos(newGrid)
+			if i == start2[0] && j == start2[1] {
+				continue
+			}
+			newGrid[i][j] = "#"
+			infCount = pathGrid(newGrid, start2, infCount)
+		}
+	}
 
-	printGrid(newGrid)
+	fmt.Println(infCount)
+	// printGrid(newGrid)
 }
 
 func fileToString() string {
@@ -104,7 +113,7 @@ func getStartPos(grid [][]string) []int {
 	return start
 }
 
-func pathGrid(grid [][]string, start []int) {
+func pathGrid(grid [][]string, start []int, infCount int) int {
 	curr := start
 	direction := "U"
 	count := 0
@@ -120,12 +129,13 @@ func pathGrid(grid [][]string, start []int) {
 			direction = moveLeft(grid, curr)
 		}
 		count++
-		if count > 5000 {
-			fmt.Println("Inf")
-			break
+		if count > 5000 { // This is really really underformant and bad. Do not do this.
+			infCount++
+			return infCount
 		}
 	}
-	fmt.Println("End pos:", curr, "End direction:", direction)
+	return infCount
+	// fmt.Println("End pos:", curr, "End direction:", direction)
 }
 
 func moveUp(grid [][]string, curr []int) string {
