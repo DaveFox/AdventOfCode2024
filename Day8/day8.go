@@ -29,6 +29,16 @@ func main() {
 	// .........A..
 	// ............
 	// ............`
+	// 	testInput2 := `T.........
+	// ...T......
+	// .T........
+	// ..........
+	// ..........
+	// ..........
+	// ..........
+	// ..........
+	// ..........
+	// ..........`
 
 	// part 1
 	lines := strings.Fields(inputString)
@@ -37,7 +47,6 @@ func main() {
 	printGrid(grid)
 
 	antennas := getAntennas(grid)
-	// fmt.Println("Antenna list:", antennas)
 
 	// find distance to other antenna of same type
 	var nodes []antennaInfo
@@ -58,31 +67,58 @@ func main() {
 			}
 		}
 	}
-	// fmt.Println(nodes)
 
 	nodes = removeDuplicateNodes(nodes)
-	// fmt.Println(nodes)
-	// remove overlaps
-	// var finalNodes []antennaInfo
-	// for _, node := range nodes {
-	// 	conflict := false
-	// 	for _, antenna := range antennas {
-	// 		if node.pos[0] == antenna.pos[0] && node.pos[1] == antenna.pos[1] {
-	// 			conflict = true
-	// 			break
-	// 		}
-	// 	}
-	// 	if !conflict {
-	// 		finalNodes = append(finalNodes, node)
-	// 	}
-	// }
 
 	addNodesToGrid(nodes, grid)
 	printGrid(grid)
 	fmt.Println("Antinode count:", len(nodes))
 
 	// part 2
-	// printGrid(newGrid)
+	grid2 := buildGrid(lines)
+	printGrid(grid2)
+
+	// find distance to other antenna of same type
+	var nodes2 []antennaInfo
+	for o, antOuter := range antennas {
+		for i, antInner := range antennas {
+			if antInner.freq == antOuter.freq && o != i {
+				dx := antOuter.pos[0] - antInner.pos[0]
+				dy := antOuter.pos[1] - antInner.pos[1]
+
+				posX := antOuter.pos[0]
+				posY := antOuter.pos[1]
+				for posX < len(lines) && posX > -1 && posY < len(lines) && posY > -1 {
+					nodeX := posX + dx
+					nodeY := posY + dy
+					if nodeX > -1 && nodeX < len(lines) && nodeY > -1 && nodeY < len(lines) {
+						newNode := antennaInfo{freq: "#", pos: make([]int, 2)}
+						newNode.pos[0] = nodeX
+						newNode.pos[1] = nodeY
+						nodes2 = append(nodes2, newNode)
+					}
+					posX = posX + dx
+					posY = posY + dy
+				}
+			}
+		}
+	}
+
+	nodes2 = removeDuplicateNodes(nodes2)
+
+	addNodesToGrid(nodes2, grid2)
+	printGrid(grid2)
+
+	total := 0
+	for _, row := range grid2 {
+		for _, col := range row {
+			if col != "." {
+				total++
+			}
+		}
+	}
+	fmt.Println("Antinode count:", len(nodes2))
+	fmt.Println("Grid dispaly count:", total)
 }
 
 func fileToString() string {
@@ -135,7 +171,9 @@ func getAntennas(grid [][]string) []antennaInfo {
 
 func addNodesToGrid(nodes []antennaInfo, grid [][]string) {
 	for _, node := range nodes {
-		grid[node.pos[0]][node.pos[1]] = node.freq
+		if grid[node.pos[0]][node.pos[1]] == "." {
+			grid[node.pos[0]][node.pos[1]] = node.freq
+		}
 	}
 }
 
