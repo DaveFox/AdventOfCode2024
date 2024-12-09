@@ -14,7 +14,7 @@ type antennaInfo struct {
 }
 
 func main() {
-	fmt.Println("AoC Day 6")
+	fmt.Println("AoC Day 8")
 	inputString := fileToString()
 
 	// 	testInput := `............
